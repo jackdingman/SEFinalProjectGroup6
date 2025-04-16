@@ -6,10 +6,9 @@ import java.util.ArrayList;
 /*
 This class will deal with player mechanics on each of the various levels
 This will involve aspects like gravity and movement
-
  */
 public class Player implements KeyListener {
-    private int x, y; //Position of hte player
+    private int x, y; //Position of the player
     private int xVelo = 0;
     private int yVelo = 0;
     private int width = 30;
@@ -27,19 +26,15 @@ public class Player implements KeyListener {
     private boolean rightPressed = false;
     private boolean jumpPressed = false;
 
-
     private String user;
 
-
-    public Player(String user, int startX, int startY)
-    {
+    public Player(String user, int startX, int startY) {
         this.user = user;
         this.x = startX;
         this.y = startY;
     }
 
-    public void positionChange(ArrayList<Platform> platforms, ArrayList<Coin> coins)
-    {
+    public void positionChange(ArrayList<Platform> platforms, ArrayList<Coin> coins) {
         if (!onGround) {
             yVelo = yVelo + gravity; // gravity's effect on player
         }
@@ -60,12 +55,11 @@ public class Player implements KeyListener {
         }
         y = y + yVelo;
 
-        //Updates will need to be sent to the server
-
+        // Collision with platforms
         onGround = false;
         for (Platform p : platforms) {
             if (collidesWith(p)) {
-                if (y + height - yVelo <= p.getY()) { //player must be coming from above, not the side
+                if (y + height - yVelo <= p.getY()) { //player must be coming from above
                     y = p.getY() - height; // Snap on top
                     yVelo = 0;
                     onGround = true;
@@ -73,35 +67,24 @@ public class Player implements KeyListener {
                 } else {
                     // SIDE collision bounceback
                     if (x + width - xVelo <= p.getX()) {
-                        // Hit left side of platform
                         x = p.getX() - width;
-                        xVelo = (int)(-xVelo * 0.5); // Bounce back with 50% velocity
+                        xVelo = (int)(-xVelo * 0.5);
                     } else if (x - xVelo >= p.getX() + p.getWidth()) {
-                        // Hit right side of platform
                         x = p.getX() + p.getWidth();
                         xVelo = (int)(-xVelo * 0.5);
-                    }
-
-                    // Optionally slow down vertical velocity if bumping under platform
-                    else if (y - yVelo >= p.getY() + p.getHeight()) {
+                    } else if (y - yVelo >= p.getY() + p.getHeight()) {
                         y = p.getY() + p.getHeight();
-                        yVelo = (int)(-yVelo * 0.5); // Bump head, bounce downward
+                        yVelo = (int)(-yVelo * 0.5);
                     }
                 }
                 break;
             }
-
         }
-        /*for (Coin c : coins) {
-            if (c.isCoinCollected(x, y, width, height)){
-                c.draw(null);
-            }
-        }*/
 
         // Prevent moving off screen
         if (x < 0) x = 0;
-        if (x > 770) x = 770; // 800 - player width
-        if (y > 1200 ) {
+        if (x > 970) x = 970;
+        if (y > 1200) {
             x = 100;
             y = 500;
         }
@@ -113,13 +96,10 @@ public class Player implements KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
-
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             leftPressed = true;
         }
@@ -144,28 +124,39 @@ public class Player implements KeyListener {
         }
     }
 
-    private void sendMovementChange(){
-        System.out.println(user + "moved to ("+x+","+y+")");
-
+    private void sendMovementChange() {
+        System.out.println(user + " moved to (" + x + "," + y + ")");
     }
 
-    public void draw(Graphics g){
+    public void draw(Graphics g) {
         g.setColor(Color.green);
-        g.fillRect(x,y,width,height);
+        g.fillRect(x, y, width, height);
     }
 
-    public int getX(){
+    public int getX() {
         return x;
     }
-    public int getY(){
+
+    public int getY() {
         return y;
     }
+
     public void addCoin() {
-        coinCount++; //increments the coin count by one
+        coinCount++;
         System.out.println("Total coins: " + coinCount);
     }
-    public int getCoinCount(){
+
+    public int getCoinCount() {
         return coinCount;
     }
 
+    // New Method: Needed for level transitions
+    public void setPosition(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+        this.xVelo = 0;
+        this.yVelo = 0;
+        this.jumping = false;
+        this.onGround = false;
+    }
 }

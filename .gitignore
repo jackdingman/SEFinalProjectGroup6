@@ -1,2 +1,13 @@
 /Level.class
 /Flag.class
+/ChatServer.class
+/CreateAccountData.class
+/Database.class
+/Error.class
+/LoginData.class
+/ServerGUI$EventHandler.class
+/ServerGUI.class
+/PlayerUpdate.class
+/GameStateUpdate.class
+/ChatClient.class
+/GameWorldState.class

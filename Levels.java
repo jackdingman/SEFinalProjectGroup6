@@ -16,9 +16,9 @@ public class Levels {
             platforms.add(new Platform(300, 500, 150, 20));
             platforms.add(new Platform(600, 350, 100, 20));
 
-            coins.add(new Coin(200, 520));
-            coins.add(new Coin(350, 420));
-            coins.add(new Coin(620, 320));
+            coins.add(new Coin(200, 520, "lvl1_coin0"));
+            coins.add(new Coin(350, 420, "lvl1_coin1"));
+            coins.add(new Coin(620, 320, "lvl1_coin2"));
 
             flag = new Flag(680, 280);
 
@@ -34,9 +34,9 @@ public class Levels {
             platforms.add(new Platform(400, 450, 200, 20));
             platforms.add(new Platform(700, 350, 100, 20));
 
-            coins.add(new Coin(100, 520));
-            coins.add(new Coin(450, 420));
-            coins.add(new Coin(720, 320));
+            coins.add(new Coin(100, 520, "lvl2_coin0"));
+            coins.add(new Coin(450, 420, "lvl2_coin1"));
+            coins.add(new Coin(720, 320, "lvl2_coin2"));
 
             flag = new Flag(750, 290);
 
@@ -46,23 +46,22 @@ public class Levels {
                 System.err.println("Failed to load background for level 2");
                 e.printStackTrace();
             }
-        }
 
-        else if (levelNum == 3) {
+        } else if (levelNum == 3) {
             platforms.add(new Platform(50, 550, 300, 20));
             platforms.add(new Platform(400, 450, 200, 20));
             platforms.add(new Platform(700, 350, 300, 20));
 
-            coins.add(new Coin(100, 520));
-            coins.add(new Coin(450, 420));
-            coins.add(new Coin(720, 320));
+            coins.add(new Coin(100, 520, "lvl3_coin0"));
+            coins.add(new Coin(450, 420, "lvl3_coin1"));
+            coins.add(new Coin(720, 320, "lvl3_coin2"));
 
             flag = new Flag(750, 290);
 
             try {
                 background = ImageIO.read(Levels.class.getResource("/textureAssets/lvl1background.jpg"));
             } catch (IOException e) {
-                System.err.println("Failed to load background for level 2");
+                System.err.println("Failed to load background for level 3");
                 e.printStackTrace();
             }
         }

@@ -1,16 +1,20 @@
 import javax.swing.*;
 
 public class Game extends JFrame {
-    public Game(){
-        setSize(1600,1200);
-         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public Game(String username) {
+        setSize(1000, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        add(new GamePanel());
+        add(new GamePanel(username));  // Pass the username
     }
+
     public static void main(String[] args) {
-
-        Game game = new Game();
-        game.setVisible(true);
-
+        String username = JOptionPane.showInputDialog("Enter your username:");
+        if (username != null && !username.trim().isEmpty()) {
+            Game game = new Game(username);
+            game.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "Username is required.");
+        }
     }
 }

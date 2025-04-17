@@ -16,9 +16,14 @@ public class Coin {
     private int delay = 3;
     private int currentPic = 0;
 
-    public Coin(int x, int y) {
+    // ✅ Added ID for multiplayer sync
+    private String id;
+
+    // ✅ Modified constructor to accept ID
+    public Coin(int x, int y, String id) {
         this.x = x;
         this.y = y;
+        this.id = id;
 
         coinAngles = new BufferedImage[3];
 
@@ -33,12 +38,12 @@ public class Coin {
         }
     }
 
-
     public void draw(Graphics g){
         if (!isCollected && coinAngles[currentPic] != null) {
             g.drawImage(coinAngles[currentPic], x, y, coinSize, coinSize, null);
         }
     }
+
     public void update() {
         if (!isCollected) {
             coinAngleCounter++;
@@ -48,6 +53,7 @@ public class Coin {
             }
         }
     }
+
     public boolean isCoinCollected(int playerX, int playerY, int playerWidth, int playerHeight) {
         Rectangle coinEntity = new Rectangle(x, y, coinSize, coinSize); // size and position on window
         Rectangle playerEntity = new Rectangle(playerX, playerY, playerWidth, playerHeight); // size and position on window
@@ -58,7 +64,22 @@ public class Coin {
         }
         return false; // return false if no collision
     }
+
     public boolean collect(){
         return isCollected;
+    }
+
+    // ✅ New methods for multiplayer tracking
+
+    public String getId() {
+        return id;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 }

@@ -16,10 +16,10 @@ public class Coin {
     private int delay = 3;
     private int currentPic = 0;
 
-    // ✅ Added ID for multiplayer sync
+    //  Added ID for multiplayer sync
     private String id;
 
-    // ✅ Modified constructor to accept ID
+    //  Modified constructor to accept ID
     public Coin(int x, int y, String id) {
         this.x = x;
         this.y = y;
@@ -69,7 +69,7 @@ public class Coin {
         return isCollected;
     }
 
-    // ✅ New methods for multiplayer tracking
+    //  New methods for multiplayer tracking
 
     public String getId() {
         return id;

@@ -38,7 +38,7 @@ public class Database
     }
   }
 
-  // ✅ New method for verifying user login
+  //  New method for verifying user login
   public boolean verifyAccount(String username, String password)
   {
     String query = "SELECT * FROM User WHERE username = ? AND password = ?";
@@ -53,7 +53,7 @@ public class Database
     }
   }
 
-  // ✅ New method for creating a new account
+  //  New method for creating a new account
   public boolean createNewAccount(String username, String password)
   {
     String checkQuery = "SELECT * FROM User WHERE username = ?";

@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import ocsf.server.AbstractServer;
@@ -13,6 +14,9 @@ public class ChatServer extends AbstractServer {
     private Database database;
 
     private final HashMap<String, PlayerUpdate> playerStates = new HashMap<>();
+    private final HashSet<String> connectedPlayers = new HashSet<>();
+    private final HashSet<String> readyPlayers = new HashSet<>();
+
     private GameWorldState world = new GameWorldState(1);
 
     // Constructor
@@ -96,10 +100,25 @@ public class ChatServer extends AbstractServer {
                 return;
             }
 
+
             // Handles string-based commands
             else if (msg instanceof String) {
                 String command = (String) msg;
 
+                if (command.startsWith("JOIN:")) {
+                    String user = command.substring(5);
+                    connectedPlayers.add(user);
+                    sendToAllClients(new HashSet<>(connectedPlayers)); // update all players
+                    log.append(user + " joined the waiting room\n");
+                } else if (command.startsWith("READY:")) {
+                    String user = command.substring(6);
+                    readyPlayers.add(user);
+                    log.append(user + " is ready\n");
+                    if (readyPlayers.containsAll(connectedPlayers) && !connectedPlayers.isEmpty()) {
+                        log.append("All players ready! Starting game...\n");
+                        sendToAllClients("START_GAME");
+                    }
+                }
                 // Pause and resume sync
                 if (command.equals("PAUSE") || command.equals("RESUME")) {
                     sendToAllClients(command);

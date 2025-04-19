@@ -1,15 +1,26 @@
 import java.io.IOException;
+import java.util.Set;
+
 import ocsf.client.AbstractClient;
 
 public class ChatClient extends AbstractClient {
 
+    private final WaitingRoomPanel waitingPanel;
     // Reference to the game panel
     private GamePanel gamePanel;
 
     // Constructor
+    public ChatClient(String host, int port, Game gameFrame, WaitingRoomPanel waitingPanel) throws Exception {
+        super(host, port);
+        this.waitingPanel = waitingPanel;
+        this.gamePanel = null;
+        openConnection();
+    }
+
     public ChatClient(String host, int port, GamePanel panel) throws Exception {
         super(host, port);
         this.gamePanel = panel;
+        this.waitingPanel = null;
         openConnection();
     }
 
@@ -25,9 +36,18 @@ public class ChatClient extends AbstractClient {
             } else if (cmd.equals("RESUME")) {
                 gamePanel.setPaused(false);
                 return;
+            } else if (cmd.equals("START_GAME")) {
+                if (waitingPanel != null) waitingPanel.startGame();
+                return; 
             }
         }
 
+        // Update waiting room players
+        if (msg instanceof java.util.Set<?> set && waitingPanel != null) {
+            Set<String> players = (Set<String>) set;
+            waitingPanel.updatePlayerList(players);
+        }
+        
         // Game state updates
         if (msg instanceof GameStateUpdate) {
             GameStateUpdate update = (GameStateUpdate) msg;
@@ -35,6 +55,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
+    
     // Sends current players position and coin count to server
     public void sendPlayerUpdate(String username, int x, int y, int coinCount) {
         try {
@@ -67,6 +88,22 @@ public class ChatClient extends AbstractClient {
     public void sendPause(boolean paused) {
         try {
             sendToServer(paused ? "PAUSE" : "RESUME");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendJoin(String username) {
+        try {
+            sendToServer("JOIN:" + username);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendReady(String username) {
+        try {
+            sendToServer("READY:" + username);
         } catch (IOException e) {
             e.printStackTrace();
         }

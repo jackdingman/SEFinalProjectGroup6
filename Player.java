@@ -159,4 +159,12 @@ public class Player implements KeyListener {
         this.jumping = false;
         this.onGround = false;
     }
+    public boolean isLeftPressed() {
+        return leftPressed;
+    }
+
+    public boolean isRightPressed() {
+        return rightPressed;
+    }
+
 }

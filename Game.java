@@ -9,12 +9,10 @@ public class Game extends JFrame {
     }
 
     public static void main(String[] args) {
-        String username = JOptionPane.showInputDialog("Enter your username:");
-        if (username != null && !username.trim().isEmpty()) {
-            Game game = new Game(username);
-            game.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(null, "Username is required.");
-        }
+        // Start with WelcomePage
+        SwingUtilities.invokeLater(() -> {
+            WelcomePage welcome = new WelcomePage();
+            welcome.setVisible(true);
+        });
     }
 }

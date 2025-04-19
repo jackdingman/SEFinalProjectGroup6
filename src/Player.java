@@ -84,10 +84,7 @@ public class Player implements KeyListener {
         // Prevent moving off screen
         if (x < 0) x = 0;
         if (x > 970) x = 970;
-        if (y > 1200) {
-            x = 100;
-            y = 500;
-        }
+
     }
 
     private boolean collidesWith(Platform p) {

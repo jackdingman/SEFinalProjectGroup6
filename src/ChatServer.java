@@ -117,6 +117,12 @@ public class ChatServer extends AbstractServer {
                     log.append("Flag reached. Advancing to level " + world.currentLevel + "\n");
                     sendWorldUpdate();
                 }
+                else if (command.equals("RESET_GAME")) {
+                    world = new GameWorldState(1); // reset level
+                    playerStates.clear(); // optional: reset all players
+                    log.append("Game state reset by client.\n");
+                    sendWorldUpdate();
+                }
                 return;
             }
         } catch (IOException e) {
@@ -130,7 +136,7 @@ public class ChatServer extends AbstractServer {
         sendToAllClients(update);
     }
 
-    // Triggeredf if an error occurs while listening for clients
+    // Triggered if an error occurs while listening for clients
     @Override
     public void listeningException(Throwable exception) {
         running = false;

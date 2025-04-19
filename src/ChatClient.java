@@ -71,4 +71,14 @@ public class ChatClient extends AbstractClient {
             e.printStackTrace();
         }
     }
+
+    // Sends a message to the server to restart the game
+    public void sendResetCommand() {
+        try {
+            sendToServer("RESET_GAME");
+        } catch (IOException e) {
+            System.err.println("Failed to send reset command: " + e.getMessage());
+        }
+    }
+
 }

@@ -13,6 +13,14 @@ public class GamePanel extends JPanel implements ActionListener {
     private BufferedImage background;
     private Flag flag;
     private int currentLevel = 1;
+    private long levelStartTime;
+
+    //Tracks all players stats
+    private final PlayerStats stats = new PlayerStats();
+
+    //Changes Timer Logic (passable)
+    private Timer timer;
+
 
     // Multiplayer objects and variables
     private HashMap<String, PlayerUpdate> otherPlayers = new HashMap<>();
@@ -25,6 +33,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     // bounds of the "Exit" button
     private final Rectangle exitButtonBounds = new Rectangle();
+
 
     // Public setter so ChatClient can toggle pause
     public void setPaused(boolean paused) {
@@ -45,15 +54,16 @@ public class GamePanel extends JPanel implements ActionListener {
         // Initialize the network client
         ChatClient tmp = null;
         try {
-            tmp = new ChatClient("192.168.0.223", 8300, this);
+            tmp = new ChatClient("192.168.1.136", 8300, this);
         } catch (Exception e) {
             e.printStackTrace();
         }
         client = tmp;
 
         // start game loop
-        Timer timer = new Timer(16, this);
-        timer.start();
+        this.timer = new Timer(16, this);
+        this.timer.start();
+
 
         // Enable key and mouse inputs
         setFocusable(true);
@@ -99,6 +109,10 @@ public class GamePanel extends JPanel implements ActionListener {
         flag       = lvl.getFlag();
         background = lvl.getBackground();
         player.setPosition(100, 500);
+
+        // Initializes timer in the top right
+        levelStartTime = System.currentTimeMillis();
+
     }
 
     // Called by the ChatClient to sync multiplayer state
@@ -106,6 +120,18 @@ public class GamePanel extends JPanel implements ActionListener {
         this.otherPlayers = players;
         if (this.worldState.currentLevel != state.currentLevel) {
             this.currentLevel = state.currentLevel;
+
+            stats.awardMedals();
+
+            //Displays Game Over Panel when final level is reached
+            if (currentLevel > 3) { // Game Over after final level
+                if (timer != null) timer.stop(); // stops game updates
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+                frame.setContentPane(new GameOverScreen(stats, username));
+                frame.revalidate();
+                return;
+            }
+
             loadLevel(currentLevel);
         }
         this.worldState = state;
@@ -118,6 +144,11 @@ public class GamePanel extends JPanel implements ActionListener {
             // normal player position
             player.positionChange(platforms, coins);
 
+            if (player.getY() > 1200) {
+                stats.recordDeath(username); // records player's falls as deaths
+                player.setPosition(100, 500);
+            }
+
             // Update and check coin collisions
             for (Coin c : coins) {
                 if (!worldState.collectedCoinIds.contains(c.getId())) {
@@ -125,6 +156,10 @@ public class GamePanel extends JPanel implements ActionListener {
                     if (c.isCoinCollected(player.getX(), player.getY(), 30, 30)) {
                         if (client != null) client.sendCoinCollected(c.getId());
                         player.addCoin();
+
+                        // Adds coin collected to tracked stats
+                        stats.coinCollected(username);
+
                     }
                 }
             }
@@ -132,6 +167,10 @@ public class GamePanel extends JPanel implements ActionListener {
             flag.update();
             if (flag.isFlagReached(player.getX(), player.getY(), 30, 30) && client != null) {
                 client.sendFlagReached();
+
+                // Adds fastest to flag to tracked stats
+                stats.flagReached(username);
+
             }
 
             // Send player update to server
@@ -180,6 +219,13 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Arial", Font.BOLD, 18));
         g.drawString("Coins: " + player.getCoinCount(), 20, 30);
 
+        // Draws a timer on the Top Right
+        long elapsed = (System.currentTimeMillis() - levelStartTime) / 1000;
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 18));
+        g.drawString("Time: " + elapsed + "s", getWidth() - 100, 30);
+
+
         // Draw pause overlay & Exit button
         if (paused) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -216,4 +262,9 @@ public class GamePanel extends JPanel implements ActionListener {
             g2.dispose();
         }
     }
+
+    public ChatClient getClient() {
+        return client;
+    }
+
 }

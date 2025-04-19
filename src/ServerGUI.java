@@ -1,181 +1,114 @@
-
-
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import javax.swing.*;
 
-public class ServerGUI extends JFrame
-{
-  // Data fields.
+public class ServerGUI extends JFrame {
+  // UI components
   private JLabel status;
   private String[] labels = {"Port #", "Timeout"};
   private JTextField[] textFields = new JTextField[labels.length];
   private JTextArea log;
-  private JButton listen;
-  private JButton close;
-  private JButton stop;
-  private JButton quit;
+  private JButton listen, close, stop, quit;
   private ChatServer server;
 
-  public ServerGUI()
-  { 
+  // Constructor
+  public ServerGUI() {
+    super("Chat Server");
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setSize(450, 450);
+
+    // North panel
     JPanel north = new JPanel();
-    JPanel center = new JPanel(new BorderLayout());
-    JPanel south = new JPanel();
-    EventHandler handler = new EventHandler();
-
-    this.setTitle("Chat Server");
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    JLabel statusText = new JLabel("Status:");
-    north.add(statusText);
+    north.add(new JLabel("Status:"));
     status = new JLabel("Not Connected");
     status.setForeground(Color.RED);
     north.add(status);
+    add(north, BorderLayout.NORTH);
 
+    // Center panel
+    JPanel center = new JPanel(new BorderLayout());
+
+    // Sub-panel
     JPanel centerNorth = new JPanel(new GridLayout(labels.length, 2, 5, 5));
-    for (int i = 0; i < textFields.length; i++)
-    {
-      JLabel label = new JLabel(labels[i], JLabel.RIGHT);
-      centerNorth.add(label);
+    for (int i = 0; i < labels.length; i++) {
+      centerNorth.add(new JLabel(labels[i], JLabel.RIGHT));
       textFields[i] = new JTextField(10);
       centerNorth.add(textFields[i]);
     }
-
     textFields[0].setText("8300");
     textFields[1].setText("500");
+    center.add(centerNorth, BorderLayout.NORTH);
 
-    JPanel centerNorthBuffer = new JPanel();
-    centerNorthBuffer.add(centerNorth);
-    center.add(centerNorthBuffer, BorderLayout.NORTH);
-
-    JPanel serverLogPanel = new JPanel(new BorderLayout());
-    JLabel serverLabel = new JLabel("Server Log", JLabel.CENTER);
-    JPanel serverLabelBuffer = new JPanel();
-    serverLabelBuffer.add(serverLabel);
-    serverLogPanel.add(serverLabelBuffer, BorderLayout.NORTH);
+    // Log display
     log = new JTextArea(10, 35);
     log.setEditable(false);
-    JScrollPane serverLogPane = new JScrollPane(log);
-    JPanel serverLogPaneBuffer = new JPanel();
-    serverLogPaneBuffer.add(serverLogPane);
-    serverLogPanel.add(serverLogPaneBuffer, BorderLayout.SOUTH);
+    center.add(new JScrollPane(log), BorderLayout.CENTER);
+    add(center, BorderLayout.CENTER);
 
-    JPanel centerSouth = new JPanel();
-    centerSouth.add(serverLogPanel);
-    center.add(centerSouth, BorderLayout.SOUTH);
-
+    // South panel
+    JPanel south = new JPanel();
     listen = new JButton("Listen");
-    listen.addActionListener(handler);
+    close  = new JButton("Close");
+    stop   = new JButton("Stop");
+    quit   = new JButton("Quit");
     south.add(listen);
-    close = new JButton("Close");
-    close.addActionListener(handler);
     south.add(close);
-    stop = new JButton("Stop");
-    stop.addActionListener(handler);
     south.add(stop);
-    quit = new JButton("Quit");
-    quit.addActionListener(handler);
     south.add(quit);
+    add(south, BorderLayout.SOUTH);
 
-    this.add(north, BorderLayout.NORTH);
-    this.add(center, BorderLayout.CENTER);
-    this.add(south, BorderLayout.SOUTH);
-
-    this.setSize(450, 450);
-    this.setVisible(true);
-
-    //  Create and inject the Database object
+    // Server setup
     server = new ChatServer();
     Database db = new Database();
-    server.setDatabase(db); //  inject the new database
+    server.setDatabase(db);
     server.setLog(log);
     server.setStatus(status);
+
+    // Button event handlers
+    EventHandler handler = new EventHandler();
+    listen.addActionListener(handler);
+    close.addActionListener(handler);
+    stop.addActionListener(handler);
+    quit.addActionListener(handler);
+
+    setVisible(true); // Show GUI
   }
 
-  public static void main(String[] args)
-  {
-    new ServerGUI();
-  }
-
-  public JTextField getTextFieldAt(int index)
-  {
-    return textFields[index];
-  }
-
-  public JLabel getStatus()
-  {
-    return status;
-  }
-
-  public JTextArea getLog()
-  {
-    return log;
-  }
-
-  class EventHandler implements ActionListener
-  {
-    public void actionPerformed(ActionEvent e)
-    {
-      Object buttonClicked = e.getSource();
-
-      if (buttonClicked == listen)
-      {
-        if (textFields[0].getText().equals("") || textFields[1].getText().equals(""))
-        {
-          log.append("Port number or timeout not entered before pressing Listen\n");
-        }
-        else
-        {
-          server.setPort(Integer.parseInt(textFields[0].getText()));
-          server.setTimeout(Integer.parseInt(textFields[1].getText()));
-          try
-          {
+  // Inner class to handle button actions
+  class EventHandler implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      Object src = e.getSource();
+      try {
+        if (src == listen) {
+          // Validate input fields
+          if (textFields[0].getText().isEmpty() || textFields[1].getText().isEmpty()) {
+            log.append("Port or timeout missing\n");
+          } else {
+            // Set server port and timeout from input fields
+            server.setPort(Integer.parseInt(textFields[0].getText()));
+            server.setTimeout(Integer.parseInt(textFields[1].getText()));
             server.listen();
           }
-          catch (IOException e1)
-          {
-            log.append("An exception occurred: " + e1.getMessage() + "\n");
-          }
+        } else if (src == close) {
+          server.close(); // Close server socket
+        } else if (src == stop) {
+          server.stopListening(); // Stop accepting new connections
+        } else if (src == quit) {
+          System.exit(0); // Exit
         }
-      }
-
-      else if (buttonClicked == close)
-      {
-        if (!server.isRunning())
-        {
-          log.append("Server not currently started\n");
-        }
-        else
-        {
-          try
-          {
-            server.close();
-          }
-          catch (IOException e1)
-          {
-            log.append("An exception occurred: " + e1.getMessage() + "\n");
-          }
-        }
-      }
-
-      else if (buttonClicked == stop)
-      {
-        if (!server.isListening())
-        {
-          log.append("Server not currently listening\n");
-        }
-        else
-        {
-          server.stopListening();
-        }
-      }
-
-      else if (buttonClicked == quit)
-      {
-        System.exit(0);
+      } catch (IOException ex) {
+        log.append("Error: " + ex.getMessage() + "\n");
       }
     }
+  }
+
+  // Main method
+  public static void main(String[] args) {
+    new ServerGUI();
   }
 }

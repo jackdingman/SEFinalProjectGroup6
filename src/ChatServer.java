@@ -108,14 +108,25 @@ public class ChatServer extends AbstractServer {
                 if (command.startsWith("JOIN:")) {
                     String user = command.substring(5);
                     connectedPlayers.add(user);
-                    sendToAllClients(new HashSet<>(connectedPlayers)); // update all players
                     log.append(user + " joined the waiting room\n");
-                } else if (command.startsWith("READY:")) {
+                    sendToAllClients(new HashSet<>(connectedPlayers)); // update all clients
+                }
+                else if (command.startsWith("READY:")) {
                     String user = command.substring(6);
                     readyPlayers.add(user);
                     log.append(user + " is ready\n");
-                    if (readyPlayers.containsAll(connectedPlayers) && !connectedPlayers.isEmpty()) {
-                        log.append("All players ready! Starting game...\n");
+
+                    log.append("Connected players: " + connectedPlayers + "\n");
+                    log.append("Ready players: " + readyPlayers + "\n");
+
+                    // If there's only one player, start the game when they're ready
+                    if (connectedPlayers.size() == 1 && readyPlayers.containsAll(connectedPlayers)) {
+                        log.append("Only one player - starting game immediately\n");
+                        sendToAllClients("START_GAME");
+                    }
+                    // Otherwise, wait for everyone to be ready
+                    else if (readyPlayers.containsAll(connectedPlayers)) {
+                        log.append("All players ready - starting game\n");
                         sendToAllClients("START_GAME");
                     }
                 }

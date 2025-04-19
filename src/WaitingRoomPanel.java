@@ -59,8 +59,13 @@ public class WaitingRoomPanel extends JPanel {
     public void startGame() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.setContentPane(new GamePanel(username));
+            GamePanel gamePanel = new GamePanel(username);
+            frame.setContentPane(gamePanel);
             frame.revalidate();
+            frame.repaint();
+
+            // Make sure the gamePanel has focus
+            gamePanel.requestFocusInWindow();
         });
     }
 }

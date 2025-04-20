@@ -46,75 +46,50 @@ public class PushableBlock {
 
     // Updates the blocks physics and collision with platforms and players
     public void update(ArrayList<Platform> platforms, Player player) {
-        // Apply gravity when not on the ground
-        if (!onGround) {
-            yVelo += gravity;
-        } else {
-            yVelo = 0;
-        }
+        // Gravity
+        if (!onGround) yVelo += gravity;
+        else             yVelo = 0;
 
-        // Determine if player is pushing from left or right
+        // Push by player when overlapping
         Rectangle playerBounds = new Rectangle(player.getX(), player.getY(), 30, 30);
-        Rectangle blockBounds = getBounds();
-
-        if (playerBounds.intersects(blockBounds)) {
-            int playerRight = player.getX() + 30;
-            int blockLeft = x;
-            int playerLeft = player.getX();
-            int blockRight = x + width;
-
-            // Push to the right
-            if (playerRight > blockLeft && playerRight < blockLeft + 15 && player.isRightPressed()) {
-                x += 5;
-            }
-            // Push to the left
-            else if (playerLeft < blockRight && playerLeft > blockRight - 15 && player.isLeftPressed()) {
-                x -= 5;
-            }
+        if (playerBounds.intersects(getBounds())) {
+            if (player.isRightPressed())  x += 5;
+            else if (player.isLeftPressed()) x -= 5;
         }
-        // Apply horizontal movement
-        x += xVelo;
 
-        // Apply vertical movement
+        // Apply velocity
+        x += xVelo;
         y += yVelo;
 
-        // Reset onGround, check collisions
+        // Collision with each platform…
         onGround = false;
         for (Platform p : platforms) {
-            Rectangle platBounds = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
-
-            if (getBounds().intersects(platBounds)) {
-                // Coming from above
+            Rectangle plat = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+            if (getBounds().intersects(plat)) {
                 if (y + height - yVelo <= p.getY()) {
                     y = p.getY() - height;
                     yVelo = 0;
                     onGround = true;
-                }
-                // Hit platform from left
-                else if (x + width - xVelo <= p.getX()) {
+                } else if (x + width - xVelo <= p.getX()) {
                     x = p.getX() - width;
-                }
-                // Hit platform from right
-                else if (x - xVelo >= p.getX() + p.getWidth()) {
+                } else if (x - xVelo >= p.getX() + p.getWidth()) {
                     x = p.getX() + p.getWidth();
-                }
-                // Hit platform from below
-                else if (y - yVelo >= p.getY() + p.getHeight()) {
+                } else if (y - yVelo >= p.getY() + p.getHeight()) {
                     y = p.getY() + p.getHeight();
                     yVelo = 0;
                 }
             }
         }
 
-        // Stay within screen
+        // Screen bounds and reset if fallen
         if (x < 0) x = 0;
         if (x > 970) x = 970;
         if (y > 1200) {
             x = originalX;
             y = originalY;
         }
-
     }
+
 
     // Return the bounding rectangle for collision detection
     public Rectangle getBounds() {

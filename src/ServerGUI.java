@@ -76,8 +76,6 @@ public class ServerGUI extends JFrame {
 
     // Initialize server and inject dependencies
     server = new ChatServer();
-    Database db = new Database();
-    server.setDatabase(db);
     server.setLog(log);
     server.setStatus(status);
 

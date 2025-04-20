@@ -17,9 +17,6 @@ public class ChatServer extends AbstractServer {
     // Flag indicating whether server is currently running
     private boolean running = false;
 
-    // Database instance for authentication
-    private Database database;
-
     // Tracks each player's latest update
     private final HashMap<String, PlayerUpdate> playerStates = new HashMap<>();
 
@@ -53,10 +50,6 @@ public class ChatServer extends AbstractServer {
         this.status = status;
     }
 
-    // Injects the Database for login verification
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
 
     // Triggered when server starts listening for client connections
     @Override
@@ -98,14 +91,6 @@ public class ChatServer extends AbstractServer {
             if (msg instanceof LoginData) {
                 LoginData data = (LoginData) msg;
                 Object result;
-                if (database.verifyAccount(data.getUsername(), data.getPassword())) {
-                    result = "LoginSuccessful";
-                    log.append("Client " + client.getId() + " logged in as " + data.getUsername() + "\n");
-                } else {
-                    result = new Error("The username and password are incorrect.", "Login");
-                    log.append("Client " + client.getId() + " failed to log in\n");
-                }
-                client.sendToClient(result);
                 return;
             }
             // Player position + coin count

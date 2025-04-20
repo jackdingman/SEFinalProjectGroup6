@@ -234,11 +234,17 @@ public class GamePanel extends JPanel implements ActionListener {
 
             // Update and sync pushable blocks
             for (PushableBlock block : pushableBlocks) {
+
                 int prevX = block.getBounds().x;
                 int prevY = block.getBounds().y;
-                block.update(platforms, player);
-                if (client != null && (block.getBounds().x != prevX || block.getBounds().y != prevY)) {
-                    client.sendBlockPosition(block.getId(), block.getBounds().x, block.getBounds().y);
+                block.update(allPlatforms, player);
+                if (client != null
+                        && (block.getBounds().x != prevX || block.getBounds().y != prevY)) {
+                    client.sendBlockPosition(
+                            block.getId(),
+                            block.getBounds().x,
+                            block.getBounds().y
+                    );
                 }
             }
 
@@ -288,7 +294,6 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // Draw pushable blocks
         for (PushableBlock block : pushableBlocks) {
-            block.update(platforms, player);
             block.draw(g);
         }
 

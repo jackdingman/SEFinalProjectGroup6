@@ -146,6 +146,11 @@ public class ChatServer extends AbstractServer {
                     world.advanceLevel();
                     log.append("Flag reached. Advancing to level " + world.currentLevel + "\n");
                     sendWorldUpdate();
+                } else if (command.equals("RESET_GAME")) {
+                    world = new GameWorldState(1); // reset level
+                    playerStates.clear(); // optional: reset all players
+                    log.append("Game state reset by client.\n");
+                    sendWorldUpdate();
                 }
                 return;
             }

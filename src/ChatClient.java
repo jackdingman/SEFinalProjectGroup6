@@ -38,7 +38,7 @@ public class ChatClient extends AbstractClient {
                 return;
             } else if (cmd.equals("START_GAME")) {
                 if (waitingPanel != null) waitingPanel.startGame();
-                return; 
+                return;
             }
         }
 
@@ -47,7 +47,7 @@ public class ChatClient extends AbstractClient {
             Set<String> players = (Set<String>) set;
             waitingPanel.updatePlayerList(players);
         }
-        
+
         // Game state updates
         if (msg instanceof GameStateUpdate) {
             GameStateUpdate update = (GameStateUpdate) msg;
@@ -55,7 +55,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
-    
+
     // Sends current players position and coin count to server
     public void sendPlayerUpdate(String username, int x, int y, int coinCount) {
         try {
@@ -106,6 +106,15 @@ public class ChatClient extends AbstractClient {
             sendToServer("READY:" + username);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    // Sends a message to the server to restart the game
+    public void sendResetCommand() {
+        try {
+            sendToServer("RESET_GAME");
+        } catch (IOException e) {
+            System.err.println("Failed to send reset command: " + e.getMessage());
         }
     }
 }

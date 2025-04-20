@@ -42,7 +42,7 @@ public class CreateAccountPage extends JFrame {
         JButton backBtn = new JButton("Back");
         backBtn.setFont(new Font("SansSerif", Font.PLAIN, 18));
         styleFlatNavButton(backBtn);
-        backBtn.addActionListener(_ -> {
+        backBtn.addActionListener(e -> {
             new WelcomePage().setVisible(true);  // Return to welcome screen
             dispose();  // Clean up resources
         });
@@ -110,7 +110,7 @@ public class CreateAccountPage extends JFrame {
         confirmField.getDocument().addDocumentListener(validator);
         answerField.getDocument().addDocumentListener(validator);
 
-        submitBtn.addActionListener(_ -> handleSubmit());
+        submitBtn.addActionListener(e -> handleSubmit());
     }
 
     // Handles form submission:

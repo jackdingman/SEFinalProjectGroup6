@@ -42,7 +42,7 @@ public class LoginPage extends JFrame {
         JButton backBtn = new JButton("Back");
         backBtn.setFont(new Font("SansSerif", Font.PLAIN, 18));
         styleFlatNavButton(backBtn);
-        backBtn.addActionListener(_ -> {
+        backBtn.addActionListener(e -> {
             new WelcomePage().setVisible(true);  // Return to welcome screen
             dispose();
         });
@@ -99,8 +99,8 @@ public class LoginPage extends JFrame {
         showPass.addItemListener(e -> passField.setEchoChar(
                 e.getStateChange() == ItemEvent.SELECTED ? (char)0 : '•'));
 
-        submitBtn.addActionListener(_ -> handleSubmit());
-        recoverBtn.addActionListener(_ -> handleRecovery());
+        submitBtn.addActionListener(e -> handleSubmit());
+        recoverBtn.addActionListener(e -> handleRecovery());
     }
 
     private void handleSubmit() {

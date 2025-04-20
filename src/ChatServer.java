@@ -151,6 +151,21 @@ public class ChatServer extends AbstractServer {
                     playerStates.clear(); // optional: reset all players
                     log.append("Game state reset by client.\n");
                     sendWorldUpdate();
+                } else if (command.startsWith("BLOCK:")) {
+                    String[] parts = command.split(":");
+                    if (parts.length == 4) {
+                        String blockId = parts[1];
+                        int x = Integer.parseInt(parts[2]);
+                        int y = Integer.parseInt(parts[3]);
+                        world.updateBlockPosition(blockId, x, y);
+                        sendWorldUpdate();  // No log entry
+                    }
+                    return;
+                } else if (command.startsWith("BUTTON:")) {
+                    String buttonId = command.substring(7);
+                    world.activateButton(buttonId);
+                    sendWorldUpdate();  // No log entry
+                    return;
                 }
                 return;
             }

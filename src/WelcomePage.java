@@ -59,14 +59,14 @@ public class WelcomePage extends JFrame {
 
         // Login button configuration
         configureButton(loginBtn, new Color(110, 110, 110));
-        loginBtn.addActionListener(_ -> {
+        loginBtn.addActionListener(e -> {
             new LoginPage(this).setVisible(true);  // Transition to auth screen
             dispose();  // Clean up current window
         });
 
         // Account creation button configuration
         configureButton(createBtn, new Color(110, 110, 110));
-        createBtn.addActionListener(_ -> {
+        createBtn.addActionListener(e -> {
             new CreateAccountPage().setVisible(true);  // Transition to registration
             dispose();
         });

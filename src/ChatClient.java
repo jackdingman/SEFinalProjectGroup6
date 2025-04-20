@@ -117,4 +117,20 @@ public class ChatClient extends AbstractClient {
             System.err.println("Failed to send reset command: " + e.getMessage());
         }
     }
+
+    public void sendBlockPosition(String blockId, int x, int y) {
+        try {
+            sendToServer("BLOCK:" + blockId + ":" + x + ":" + y);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendButtonActivated(String buttonId) {
+        try {
+            sendToServer("BUTTON:" + buttonId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

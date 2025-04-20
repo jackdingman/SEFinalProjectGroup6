@@ -9,6 +9,9 @@ public class GamePanel extends JPanel implements ActionListener {
     // Game objects and variables
     private ArrayList<Platform> platforms;
     private ArrayList<Coin> coins;
+    private ArrayList<Button> buttons;
+    private ArrayList<ToggleWall> toggleWalls;
+    private ArrayList<PushableBlock> pushableBlocks;
     private final Player player;
     private BufferedImage background;
     private Flag flag;
@@ -106,6 +109,9 @@ public class GamePanel extends JPanel implements ActionListener {
         assert lvl != null;
         platforms  = lvl.getPlatforms();
         coins      = lvl.getCoins();
+        buttons = lvl.getButtons(); // if not already there
+        toggleWalls = lvl.getToggleWalls(); // if not already there
+        pushableBlocks = lvl.getBlocks();
         flag       = lvl.getFlag();
         background = lvl.getBackground();
         player.setPosition(100, 500);
@@ -122,6 +128,30 @@ public class GamePanel extends JPanel implements ActionListener {
             this.currentLevel = state.currentLevel;
 
             stats.awardMedals();
+
+            for (PushableBlock block : pushableBlocks) {
+                int[] pos = worldState.getBlockPosition(block.getId());
+                if (pos != null && !(pos[0] == 0 && pos[1] == 0)) {
+                    block.setPosition(pos[0], pos[1]);
+                }
+            }
+
+            for (Button b : buttons) {
+                boolean wasActive = b.isActivated();
+
+                ArrayList<PlayerUpdate> allPlayers = new ArrayList<>(otherPlayers.values());
+                allPlayers.add(new PlayerUpdate(username, player.getX(), player.getY(), player.getCoinCount()));
+
+                b.update(allPlayers, pushableBlocks);
+
+                boolean nowActive = b.isActivated();
+
+                if (!wasActive && nowActive) {
+                    worldState.activateButton(b.getId());
+                } else if (wasActive && !nowActive) {
+                    worldState.deactivateButton(b.getId());
+                }
+            }
 
             //Displays Game Over Panel when final level is reached
             if (currentLevel > 3) { // Game Over after final level
@@ -149,6 +179,16 @@ public class GamePanel extends JPanel implements ActionListener {
                 player.setPosition(100, 500);
             }
 
+            // Merge platforms + visible toggle walls
+            ArrayList<Platform> allPlatforms = new ArrayList<>(platforms);
+            for (ToggleWall wall : toggleWalls) {
+                if (wall.isVisible()) {
+                    allPlatforms.add(new Platform(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()));
+                }
+            }
+
+            player.positionChange(allPlatforms, coins);
+
             // Update and check coin collisions
             for (Coin c : coins) {
                 if (!worldState.collectedCoinIds.contains(c.getId())) {
@@ -163,6 +203,37 @@ public class GamePanel extends JPanel implements ActionListener {
                     }
                 }
             }
+
+            for (Button b : buttons) {
+                boolean wasActive = b.isActivated();
+
+                // Build a full list of all players (including local + remote)
+                ArrayList<PlayerUpdate> allPlayers = new ArrayList<>(otherPlayers.values());
+                allPlayers.add(new PlayerUpdate(username, player.getX(), player.getY(), player.getCoinCount()));
+
+                b.update(allPlayers, pushableBlocks);
+
+                boolean nowActive = b.isActivated();
+
+                if (!wasActive && nowActive) {
+                    if (client != null) client.sendButtonActivated(b.getId());
+                    worldState.activateButton(b.getId());
+                } else if (wasActive && !nowActive) {
+                    worldState.deactivateButton(b.getId());
+                }
+            }
+
+            for (PushableBlock block : pushableBlocks) {
+                int prevX = block.getBounds().x;
+                int prevY = block.getBounds().y;
+
+                block.update(platforms, player);
+
+                if (client != null && (block.getBounds().x != prevX || block.getBounds().y != prevY)) {
+                    client.sendBlockPosition(block.getId(), block.getBounds().x, block.getBounds().y);
+                }
+            }
+
             // Check for reaching flag
             flag.update();
             if (flag.isFlagReached(player.getX(), player.getY(), 30, 30) && client != null) {
@@ -194,10 +265,25 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // Draw platforms and coins
         for (Platform p : platforms) p.draw(g);
+        for (ToggleWall wall : toggleWalls) wall.draw(g);
+        for (Button b : buttons) b.draw(g);
+
         for (Coin c : coins) {
             if (!worldState.collectedCoinIds.contains(c.getId())) {
                 c.draw(g);
             }
+        }
+
+        ArrayList<PlayerUpdate> allPlayers = new ArrayList<>(otherPlayers.values());
+        allPlayers.add(new PlayerUpdate(username, player.getX(), player.getY(), player.getCoinCount()));
+
+        for (Button b : buttons) {
+            b.update(allPlayers, pushableBlocks);
+        }
+
+        for (PushableBlock block : pushableBlocks) {
+            block.update(platforms, player);
+            block.draw(g);
         }
 
         // Draw flag and players

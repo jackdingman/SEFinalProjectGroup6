@@ -1,15 +1,15 @@
-import java.io.IOException;
 import java.util.Set;
-
+import java.io.IOException;
 import ocsf.client.AbstractClient;
 
 public class ChatClient extends AbstractClient {
-
+    // Reference to the waiting room UI panel
     private final WaitingRoomPanel waitingPanel;
-    // Reference to the game panel
+
+    // Reference to the main game UI panel
     private GamePanel gamePanel;
 
-    // Constructor
+    // Constructor used by waiting room
     public ChatClient(String host, int port, Game gameFrame, WaitingRoomPanel waitingPanel) throws Exception {
         super(host, port);
         this.waitingPanel = waitingPanel;
@@ -17,6 +17,7 @@ public class ChatClient extends AbstractClient {
         openConnection();
     }
 
+    // Constructor used by game panel after waiting room finishes
     public ChatClient(String host, int port, GamePanel panel) throws Exception {
         super(host, port);
         this.gamePanel = panel;
@@ -55,7 +56,6 @@ public class ChatClient extends AbstractClient {
         }
     }
 
-
     // Sends current players position and coin count to server
     public void sendPlayerUpdate(String username, int x, int y, int coinCount) {
         try {
@@ -93,6 +93,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
+    // Join the waiting room with a username
     public void sendJoin(String username) {
         try {
             sendToServer("JOIN:" + username);
@@ -101,6 +102,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
+    // Signals a player is ready
     public void sendReady(String username) {
         try {
             sendToServer("READY:" + username);
@@ -118,6 +120,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
+    // Update block position on server for synchronization
     public void sendBlockPosition(String blockId, int x, int y) {
         try {
             sendToServer("BLOCK:" + blockId + ":" + x + ":" + y);
@@ -126,6 +129,7 @@ public class ChatClient extends AbstractClient {
         }
     }
 
+    // Notify server that a button was activated
     public void sendButtonActivated(String buttonId) {
         try {
             sendToServer("BUTTON:" + buttonId);

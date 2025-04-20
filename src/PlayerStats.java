@@ -1,9 +1,18 @@
 import java.util.*;
 
+// Tracks in-game statistics for each player
 public class PlayerStats {
+
+    // Username of the first player to touch the levels flag
     private String firstToFlag = null;
+
+    // Number of coins collected by each player
     private final Map<String, Integer> coinsCollected = new HashMap<>();
+
+    // Number of deaths recorded for each player
     private final Map<String, Integer> deaths = new HashMap<>();
+
+    // Number of levels medals each player has earned
     private final Map<String, Integer> medals = new HashMap<>();
 
     // Sets the first player to touch the flag's username
@@ -43,18 +52,22 @@ public class PlayerStats {
                 .map(Map.Entry::getKey).orElse("N/A");
     }
 
+    // Return immutable view of coins collected
     public Map<String, Integer> getCoinsCollected() {
         return coinsCollected;
     }
 
+    // Return immutable view of death counts
     public Map<String, Integer> getDeaths() {
         return deaths;
     }
 
+    // Return immutable view of medals count
     public Map<String, Integer> getMedals() {
         return medals;
     }
 
+    // Return the username of the first player who reached the flag
     public String getFirstToFlag() {
         return firstToFlag;
     }

@@ -1,22 +1,35 @@
 import java.awt.Color;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.swing.JLabel;
+import java.io.IOException;
 import javax.swing.JTextArea;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 
 public class ChatServer extends AbstractServer {
+    // Reference to GUI log area for server messages
     private JTextArea log;
+
+    // Reference to GUI status label
     private JLabel status;
+
+    // Flag indicating whether server is currently running
     private boolean running = false;
+
+    // Database instance for authentication
     private Database database;
 
+    // Tracks each player's latest update
     private final HashMap<String, PlayerUpdate> playerStates = new HashMap<>();
+
+    // Set of players who have joined the waiting room
     private final HashSet<String> connectedPlayers = new HashSet<>();
+
+    // Set of players who have marked ready
     private final HashSet<String> readyPlayers = new HashSet<>();
 
+    // Shared game world state
     private GameWorldState world = new GameWorldState(1);
 
     // Constructor
@@ -25,6 +38,7 @@ public class ChatServer extends AbstractServer {
         this.setTimeout(500);
     }
 
+    // Returns whether server is accepting connections
     public boolean isRunning() {
         return running;
     }
@@ -34,10 +48,12 @@ public class ChatServer extends AbstractServer {
         this.log = log;
     }
 
+    // Injects the GUI status label
     public void setStatus(JLabel status) {
         this.status = status;
     }
 
+    // Injects the Database for login verification
     public void setDatabase(Database database) {
         this.database = database;
     }
@@ -105,12 +121,14 @@ public class ChatServer extends AbstractServer {
             else if (msg instanceof String) {
                 String command = (String) msg;
 
+                // Player joins waiting room
                 if (command.startsWith("JOIN:")) {
                     String user = command.substring(5);
                     connectedPlayers.add(user);
                     log.append(user + " joined the waiting room\n");
                     sendToAllClients(new HashSet<>(connectedPlayers)); // update all clients
                 }
+                // Player signals ready
                 else if (command.startsWith("READY:")) {
                     String user = command.substring(6);
                     readyPlayers.add(user);
@@ -130,28 +148,34 @@ public class ChatServer extends AbstractServer {
                         sendToAllClients("START_GAME");
                     }
                 }
-                // Pause and resume sync
+                // Pause/resume broadcast
                 if (command.equals("PAUSE") || command.equals("RESUME")) {
                     sendToAllClients(command);
                     log.append("Broadcasted " + command + "\n");
                     return;
                 }
-                // coin / flag
+                // Coin collection event
                 if (command.startsWith("COLLECT:")) {
                     String coinId = command.substring(8);
                     world.collectCoin(coinId);
                     log.append("Coin collected: " + coinId + "\n");
                     sendWorldUpdate();
-                } else if (command.equals("FLAG_REACHED")) {
+                }
+                // Flag reached event: advance level
+                else if (command.equals("FLAG_REACHED")) {
                     world.advanceLevel();
                     log.append("Flag reached. Advancing to level " + world.currentLevel + "\n");
                     sendWorldUpdate();
-                } else if (command.equals("RESET_GAME")) {
+                }
+                // Reset game to level 1
+                else if (command.equals("RESET_GAME")) {
                     world = new GameWorldState(1); // reset level
                     playerStates.clear(); // optional: reset all players
                     log.append("Game state reset by client.\n");
                     sendWorldUpdate();
-                } else if (command.startsWith("BLOCK:")) {
+                }
+                // Block position update
+                else if (command.startsWith("BLOCK:")) {
                     String[] parts = command.split(":");
                     if (parts.length == 4) {
                         String blockId = parts[1];
@@ -161,7 +185,9 @@ public class ChatServer extends AbstractServer {
                         sendWorldUpdate();  // No log entry
                     }
                     return;
-                } else if (command.startsWith("BUTTON:")) {
+                }
+                // Button activation event
+                else if (command.startsWith("BUTTON:")) {
                     String buttonId = command.substring(7);
                     world.activateButton(buttonId);
                     sendWorldUpdate();  // No log entry
@@ -180,7 +206,7 @@ public class ChatServer extends AbstractServer {
         sendToAllClients(update);
     }
 
-    // Triggeredf if an error occurs while listening for clients
+    // Triggered if an error occurs while listening for clients
     @Override
     public void listeningException(Throwable exception) {
         running = false;

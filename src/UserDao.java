@@ -1,5 +1,5 @@
-import java.sql.SQLException;
 import java.util.Optional;
+import java.sql.SQLException;
 
 // Defines the contract for user-related database interactions while abstracting the underlying storage implementation. Follows the DAO pattern to:
 public interface UserDao {

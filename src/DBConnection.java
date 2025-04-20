@@ -30,13 +30,13 @@ public class DBConnection {
         }
     }
 
-    // Provides a new database connection using configured credentials.
+    // Provides a new database connection using configured credentials
     public static Connection get() throws Exception {
         // Using DriverManager to create a new connection each time
         return DriverManager.getConnection(url, user, pass);
     }
 
-    /** Execute one INSERT/UPDATE/DELETE & return rows‑affected. */
+    // Execute one INSERT/UPDATE/DELETE & return rows‑affected
     public static int executeDML(String sql) throws SQLException {
         try (Connection c = get();
              Statement stmt = c.createStatement()) {

@@ -1,13 +1,15 @@
 import java.sql.*;
 import java.util.Optional;
 
-// Data Access Object (DAO) implementation for user-related database operations.
+// JDBC implementation of UserDao for CRUD operations on User entities
 class UserDaoImpl implements UserDao {
 
+    // Escapes single quotes in SQL strings to prevent syntax errors
     private String escape(String s) {
         return s.replace("'", "''");
     }
 
+    // Checks whether a user with the given username exists
     @Override
     public boolean existsByUsername(String username) throws Exception {
         String safe = escape(username);
@@ -19,26 +21,29 @@ class UserDaoImpl implements UserDao {
         }
     }
 
+    // Persists a new user record into the database
     @Override
     public void save(User user) throws SQLException {
+        // Escape all string values to avoid SQL syntax issues
         String u = escape(user.getUsername());
         String p = escape(user.getHashedPassword());
         String q = escape(user.getSecurityQuestion());
         String a = escape(user.getSecurityAnswer());
-        int    t = user.getTotalScore();
+        int t = user.getTotalScore();
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO users ")
-                .append("(username, hashed_password, security_question, security_answer, total_score) ")
-                .append("VALUES ('").append(u).append("', ")
-                .append("'").append(p).append("', ")
-                .append("'").append(q).append("', ")
-                .append("'").append(a).append("', ")
-                .append(t).append(")");
+        String sb = "INSERT INTO users " +
+                "(username, hashed_password, security_question, security_answer, total_score) " +
+                "VALUES ('" + u + "', " +
+                "'" + p + "', " +
+                "'" + q + "', " +
+                "'" + a + "', " +
+                t + ")";
 
-        DBConnection.executeDML(sb.toString());
+        // Execute DML statement
+        DBConnection.executeDML(sb);
     }
 
+    // Retrieves a user by username
     @Override
     public Optional<User> findByUsername(String username) throws SQLException {
         String safe = escape(username);
@@ -50,6 +55,7 @@ class UserDaoImpl implements UserDao {
 
             if (!rs.next()) return Optional.empty();
 
+            // Map result set into User object
             User u = new User(
                     rs.getString("username"),
                     rs.getString("hashed_password"),

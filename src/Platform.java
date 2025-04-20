@@ -1,12 +1,21 @@
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
+// Represents a static platform in the game world
 public class Platform {
-    private int x, y, width, height;
+
+    // X, Y Coordinate of the platform
+    private int x, y;
+
+    // Width and Height of the platform
+    private int width, height;
+
+    // Text image for the platform
     private BufferedImage texture;
 
+    // Constructor
     public Platform(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
@@ -21,6 +30,7 @@ public class Platform {
         }
     }
 
+    // Draws the platform if texture is available
     public void draw(Graphics g) {
         if (texture != null) {
             g.drawImage(texture, x, y, width, height, null);
@@ -30,9 +40,24 @@ public class Platform {
         }
     }
 
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
+    // return the platform’s x‑coordinate
+    public int getX() {
+        return x;
+    }
+
+    // return the platform’s y‑coordinate
+    public int getY() {
+        return y;
+    }
+
+    // return the platform’s width
+    public int getWidth() {
+        return width;
+    }
+
+    // return the platform’s height
+    public int getHeight() {
+        return height;
+    }
 }
 

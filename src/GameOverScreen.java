@@ -1,9 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
-/**
- Displays the Game Over screen with all player stats.
- */
+// Displays the Game Over screen with all player stats.
 public class GameOverScreen extends JPanel {
     public GameOverScreen(PlayerStats stats, String username) {
         setLayout(new BorderLayout());

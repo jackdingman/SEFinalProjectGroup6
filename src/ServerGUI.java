@@ -1,18 +1,29 @@
-import java.awt.BorderLayout;
+import javax.swing.*;
 import java.awt.Color;
+import java.io.IOException;
 import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import javax.swing.*;
 
+// Graphical user interface for controlling the chat server
 public class ServerGUI extends JFrame {
-  // UI components
+  // Label displaying current server connection status
   private JLabel status;
+
+  // Labels for input fields
   private String[] labels = {"Port #", "Timeout"};
+
+  // Text field corresponding to each label
   private JTextField[] textFields = new JTextField[labels.length];
+
+  // Test area showing server log output
   private JTextArea log;
+
+  // Control buttons for server operations
   private JButton listen, close, stop, quit;
+
+  // Underlying chat server instance
   private ChatServer server;
 
   // Constructor
@@ -21,7 +32,7 @@ public class ServerGUI extends JFrame {
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setSize(450, 450);
 
-    // North panel
+    // Top panel
     JPanel north = new JPanel();
     north.add(new JLabel("Status:"));
     status = new JLabel("Not Connected");
@@ -39,11 +50,13 @@ public class ServerGUI extends JFrame {
       textFields[i] = new JTextField(10);
       centerNorth.add(textFields[i]);
     }
+
+    // Default values
     textFields[0].setText("8300");
     textFields[1].setText("500");
     center.add(centerNorth, BorderLayout.NORTH);
 
-    // Log display
+    // Log display wrapped in scoll panel
     log = new JTextArea(10, 35);
     log.setEditable(false);
     center.add(new JScrollPane(log), BorderLayout.CENTER);
@@ -61,7 +74,7 @@ public class ServerGUI extends JFrame {
     south.add(quit);
     add(south, BorderLayout.SOUTH);
 
-    // Server setup
+    // Initialize server and inject dependencies
     server = new ChatServer();
     Database db = new Database();
     server.setDatabase(db);
@@ -85,11 +98,11 @@ public class ServerGUI extends JFrame {
       Object src = e.getSource();
       try {
         if (src == listen) {
-          // Validate input fields
+          // Ensures inputs are provided
           if (textFields[0].getText().isEmpty() || textFields[1].getText().isEmpty()) {
             log.append("Port or timeout missing\n");
           } else {
-            // Set server port and timeout from input fields
+            // Parse and set server parameters
             server.setPort(Integer.parseInt(textFields[0].getText()));
             server.setTimeout(Integer.parseInt(textFields[1].getText()));
             server.listen();
@@ -107,7 +120,7 @@ public class ServerGUI extends JFrame {
     }
   }
 
-  // Main method
+  // Entry point to launch the server GUI
   public static void main(String[] args) {
     new ServerGUI();
   }

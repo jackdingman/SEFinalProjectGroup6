@@ -1,11 +1,10 @@
-
+import java.awt.*;
 import javax.swing.*;
+import java.io.InputStream;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.InputStream;
 
 // Registration screen for creating new user accounts. Handles:
 public class CreateAccountPage extends JFrame {

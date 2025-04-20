@@ -1,11 +1,11 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
+import javax.swing.*;
+import java.util.Optional;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Optional;
+import java.awt.event.ItemEvent;
+import java.sql.PreparedStatement;
 
 
 // Authentication screen for user login. Handles credentials validation,  password visibility toggle, and password recovery workflow.

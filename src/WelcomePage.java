@@ -1,9 +1,9 @@
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.*;
 import java.io.InputStream;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import javax.swing.plaf.basic.BasicButtonUI;
 
 // Welcome page shown at application launch, providing entry points for login and account creation.
 public class WelcomePage extends JFrame {
@@ -143,7 +143,7 @@ public class WelcomePage extends JFrame {
             int h = c.getHeight();
             boolean hover = Boolean.TRUE.equals(c.getClientProperty("hover"));
             int inset = hover ? 2 : 4;  // Smaller inset creates raised appearance
-            int arc = 20;              // Corner radius for rounded rectangles
+            int arc = 20;               // Corner radius for rounded rectangles
 
             // Hover shadow effect
             if (hover) {

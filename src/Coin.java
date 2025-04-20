@@ -1,36 +1,45 @@
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-
-import static java.lang.Thread.sleep;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class Coin {
-    private final int coinSize = 25; //pixel diameter of the coin
+    // Diameter of the coin in pixels
+    private final int coinSize = 25;
+
+    // X and Y position of the coin
     private int x, y;
-    private boolean isCollected; //tracker for if the coin has been collected.
-    private BufferedImage coinTexture; // jpg for what a coin looks like. May implement turning animation
+
+    // Tracks whether the coin has been collected
+    private boolean isCollected;
+
+    // Array of animation frames for the spinning coin
     private BufferedImage[] coinAngles;
 
+    // Counter to manage frame delay
     private int coinAngleCounter = 0;
+
+    // Number of updates to wait before advancing frame
     private int delay = 3;
+
+    // Index of the current frame in coinAngles
     private int currentPic = 0;
 
-    //  Added ID for multiplayer sync
+    // Unique identifier for multiplayer synchronization
     private String id;
 
-    //  Modified constructor to accept ID
+    // Constructor to set position, ID, and load animation frames
     public Coin(int x, int y, String id) {
         this.x = x;
         this.y = y;
         this.id = id;
 
-        coinAngles = new BufferedImage[3];
+        coinAngles = new BufferedImage[3]; // Three-frame coin animation
 
+        // Load each coin frame image
         for (int i = 0; i < coinAngles.length; i++) {
             try {
-                coinAngles[i] = ImageIO.read(getClass().getResource("/textureAssets/coinAngle"+(i+1)+".png")); // adjust path as needed
-                //coinTexture = ImageIO.read(getClass().getResource("/textureAssets/coinAngle1.png")); // adjust path as needed
+                coinAngles[i] = ImageIO.read(getClass().getResource("/textureAssets/coinAngle" + (i + 1) + ".png"));
             } catch (IOException e) {
                 System.err.println("Failed to load platform texture");
                 e.printStackTrace();
@@ -38,12 +47,14 @@ public class Coin {
         }
     }
 
-    public void draw(Graphics g){
+    // Draws the current coin frame if not yet collected
+    public void draw(Graphics g) {
         if (!isCollected && coinAngles[currentPic] != null) {
             g.drawImage(coinAngles[currentPic], x, y, coinSize, coinSize, null);
         }
     }
 
+    // Advances the coin animation frame counter if not collected
     public void update() {
         if (!isCollected) {
             coinAngleCounter++;
@@ -54,31 +65,34 @@ public class Coin {
         }
     }
 
+    // Checks collision with player and marks coin as collected
     public boolean isCoinCollected(int playerX, int playerY, int playerWidth, int playerHeight) {
-        Rectangle coinEntity = new Rectangle(x, y, coinSize, coinSize); // size and position on window
-        Rectangle playerEntity = new Rectangle(playerX, playerY, playerWidth, playerHeight); // size and position on window
+        Rectangle coinEntity = new Rectangle(x, y, coinSize, coinSize);
+        Rectangle playerEntity = new Rectangle(playerX, playerY, playerWidth, playerHeight);
 
-        if(!isCollected && playerEntity.intersects(coinEntity)) { // collision checker
+        if (!isCollected && playerEntity.intersects(coinEntity)) {
             isCollected = true;
             return true;
         }
-        return false; // return false if no collision
+        return false;
     }
 
-    public boolean collect(){
+    // Returns whether the coin has been collected
+    public boolean collect() {
         return isCollected;
     }
 
-    //  New methods for multiplayer tracking
-
+    // Returns the unique ID of the coin
     public String getId() {
         return id;
     }
 
+    // Returns the X position of the coin
     public int getX() {
         return x;
     }
 
+    // Returns the Y position of the coin
     public int getY() {
         return y;
     }

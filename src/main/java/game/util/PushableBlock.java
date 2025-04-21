@@ -58,9 +58,15 @@ public class PushableBlock {
         // Push by player when overlapping
         Rectangle playerBounds = new Rectangle(player.getX(), player.getY(), 30, 30);
         if (playerBounds.intersects(getBounds())) {
-            if (player.isRightPressed())  x += 5;
-            else if (player.isLeftPressed()) x -= 5;
+            if (player.isRightPressed()) {
+                x += 10;
+                player.setPosition(player.getX() - 10, player.getY()); // prevent clipping
+            } else if (player.isLeftPressed()) {
+                x -= 10;
+                player.setPosition(player.getX() + 10, player.getY()); // prevent clipping
+            }
         }
+
 
         // Apply velocity
         x += xVelo;

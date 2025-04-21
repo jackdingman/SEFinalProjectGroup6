@@ -90,14 +90,14 @@ public class GamePanel extends JPanel implements ActionListener {
         // Initialize network client for multiplayer
         ChatClient tmp = null;
         try {
-            tmp = new ChatClient("192.168.0.223", 8300, this);
+            tmp = new ChatClient("192.168.1.251", 8300, this);
         } catch (Exception e) {
             e.printStackTrace();
         }
         client = tmp;
 
         // Start the game loop timer (calls actionPerformed)
-        this.timer = new Timer(16, this);
+        this.timer = new Timer(33, this);
         this.timer.start();
 
         // Enable keyboard input for movement and pause
@@ -160,7 +160,7 @@ public class GamePanel extends JPanel implements ActionListener {
             this.currentLevel = state.currentLevel;
             stats.awardMedals(); // award medals for completed level
             // If final level passed, show Game Over screen
-            if (currentLevel > 3) {
+            if (currentLevel > 4) {
                 if (timer != null) timer.stop();
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
                 frame.setContentPane(new GameOverScreen(stats, username));

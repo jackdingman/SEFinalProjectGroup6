@@ -127,6 +127,7 @@ public class Player implements KeyListener {
             x = 100;
             y = 500;
         }
+
     }
 
     // Checks if a player bounding box intersects the given platform

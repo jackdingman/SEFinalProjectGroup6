@@ -65,7 +65,7 @@ public class WaitingRoomPanel extends JPanel {
         // Connect the chat client
         ChatClient temp = null;
         try {
-            temp = new ChatClient("192.168.0.223", 8300, parent, this);
+            temp = new ChatClient("192.168.1.68", 8300, parent, this);
             temp.sendJoin(username);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -93,5 +93,25 @@ public class WaitingRoomPanel extends JPanel {
             // Make sure the gamePanel has focus
             gamePanel.requestFocusInWindow();
         });
+    }
+
+    public ChatClient getClient() {
+        return client;
+    }
+
+    public void setClient(ChatClient client) {
+        this.client = client;
+    }
+
+    public JTextArea getPlayerListArea() {
+        return playerListArea;
+    }
+
+    public JButton getReadyButton() {
+        return readyButton;
+    }
+
+    public boolean getReady() {
+        return ready;
     }
 }

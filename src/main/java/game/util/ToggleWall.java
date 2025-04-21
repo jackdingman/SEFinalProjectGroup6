@@ -33,27 +33,4 @@ public class ToggleWall extends Platform {
         }
     }
 
-    // Returns the x-coordinate if visible
-    @Override
-    public int getX() {
-        return visible ? super.getX() : -9999; // Avoid collision if hidden
-    }
-
-    // Returns the y-coordinate if visible
-    @Override
-    public int getY() {
-        return visible ? super.getY() : -9999;
-    }
-
-    // Returns the width if visible
-    @Override
-    public int getWidth() {
-        return visible ? super.getWidth() : 0;
-    }
-
-    // Returns the height if visible
-    @Override
-    public int getHeight() {
-        return visible ? super.getHeight() : 0;
-    }
 }

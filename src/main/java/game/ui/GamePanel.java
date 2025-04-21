@@ -203,6 +203,7 @@ public class GamePanel extends JPanel implements ActionListener {
         if (!paused) {
             // Update local player movement and death handling
             player.positionChange(platforms, coins);
+
             if (player.getY() > 1200) {
                 stats.recordDeath(username);
                 player.setPosition(100, 500);
@@ -212,7 +213,7 @@ public class GamePanel extends JPanel implements ActionListener {
             ArrayList<Platform> allPlatforms = new ArrayList<>(platforms);
             for (ToggleWall wall : toggleWalls) {
                 if (wall.isVisible()) {
-                    allPlatforms.add(new Platform(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()));
+                    allPlatforms.add(wall); // <<--- Use the actual ToggleWall instance!
                 }
             }
             player.positionChange(allPlatforms, coins); // second collision pass
@@ -229,20 +230,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 }
             }
 
-            // Update buttons and notify server of activation changes
-            for (Button b : buttons) {
-                boolean wasActive = b.isActivated();
-                ArrayList<PlayerUpdate> allPlayers = new ArrayList<>(otherPlayers.values());
-                allPlayers.add(new PlayerUpdate(username, player.getX(), player.getY(), player.getCoinCount()));
-                b.update(allPlayers, pushableBlocks);
-                boolean nowActive = b.isActivated();
-                if (!wasActive && nowActive) {
-                    if (client != null) client.sendButtonActivated(b.getId());
-                    worldState.activateButton(b.getId());
-                } else if (wasActive && !nowActive) {
-                    worldState.deactivateButton(b.getId());
-                }
-            }
+
 
             // Update and sync pushable blocks
             for (PushableBlock block : pushableBlocks) {
@@ -259,6 +247,20 @@ public class GamePanel extends JPanel implements ActionListener {
                     );
                 }
             }
+            for (Button b : buttons) {
+                boolean wasActive = b.isActivated();
+                ArrayList<PlayerUpdate> allPlayers = new ArrayList<>(otherPlayers.values());
+                allPlayers.add(new PlayerUpdate(username, player.getX(), player.getY(), player.getCoinCount()));
+                b.update(allPlayers, pushableBlocks);
+                boolean nowActive = b.isActivated();
+                if (!wasActive && nowActive) {
+                    if (client != null) client.sendButtonActivated(b.getId());
+                    worldState.activateButton(b.getId());
+                } else if (wasActive && !nowActive) {
+                    worldState.deactivateButton(b.getId());
+                }
+            }
+
 
             // Check flag reaching and notify server
             flag.update();

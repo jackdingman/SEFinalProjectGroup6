@@ -59,7 +59,7 @@ public class Levels {
                     () -> wall.setVisible(false)
             ));
 
-
+            blocks.add(new PushableBlock("block2", 75, 510));
 
             flag = new Flag(750, 290);
 
@@ -71,7 +71,7 @@ public class Levels {
             }
 
         } else if (levelNum == 3) {
-            platforms.add(new Platform(50, 550, 300, 20));
+            platforms.add(new Platform(50, 550, 400, 20));
             platforms.add(new Platform(400, 450, 200, 20));
             platforms.add(new Platform(700, 350, 300, 20));
 
@@ -79,12 +79,12 @@ public class Levels {
             coins.add(new Coin(450, 420, "lvl3_coin1"));
             coins.add(new Coin(720, 320, "lvl3_coin2"));
 
-            ToggleWall wall1 = new ToggleWall(800, 250, 80, 20);
-            ToggleWall wall2 = new ToggleWall(500, 300, 80, 20);
+            ToggleWall wall1 = new ToggleWall(200, 250, 100, 20);
+            ToggleWall wall2 = new ToggleWall(500, 300, 100, 20);
             toggleWalls.add(wall1);
             toggleWalls.add(wall2);
 
-            buttons.add(new Button("btn3", 500, 430,
+            buttons.add(new Button("btn3", 125, 530,
                     () -> {
                         wall1.setVisible(true);
                         wall2.setVisible(true);
@@ -95,8 +95,8 @@ public class Levels {
                     }
             ));
 
-            blocks.add(new PushableBlock("block3", 500, 420));
-            flag = new Flag(820, 240);
+            blocks.add(new PushableBlock("block3", 420, 420));
+            flag = new Flag(170, 220);
 
             try {
                 background = ImageIO.read(Levels.class.getResource("/textureAssets/lvl1background.jpg"));
@@ -113,8 +113,8 @@ public class Levels {
             coins.add(new Coin(320, 520, "lvl4_coin0"));
             coins.add(new Coin(870, 520, "lvl4_coin1"));
 
-            ToggleWall bridge1 = new ToggleWall(500, 530, 50, 20);
-            ToggleWall bridge2 = new ToggleWall(600, 530, 50, 20);
+            ToggleWall bridge1 = new ToggleWall(500, 530, 80, 20);
+            ToggleWall bridge2 = new ToggleWall(700, 530, 80, 20);
             toggleWalls.add(bridge1);
             toggleWalls.add(bridge2);
 

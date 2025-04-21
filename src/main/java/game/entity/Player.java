@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
+import java.util.List;
 
 /*
 This class will deal with player mechanics on each of the various levels
@@ -64,72 +64,75 @@ public class Player implements KeyListener {
     }
 
     // Updates the players position, applies gravity, handles jumping and resolves collisions with platforms and coins
-    public void positionChange(ArrayList<Platform> platforms, ArrayList<Coin> coins) {
-
+    public void positionChange(List<Platform> platforms, List<Coin> coins) {
         // Apply gravity if not on the ground
         if (!onGround) {
-            yVelo = yVelo + gravity;
+            yVelo += gravity;
+        } else {
+            yVelo = 0;
         }
 
         // Resets horizontal velocity each frame
         xVelo = 0;
-        if (leftPressed) {
-            xVelo = -speed;
-        }
-        if (rightPressed) {
-            xVelo = speed;
+        if (leftPressed)  xVelo = -speed;
+        if (rightPressed) xVelo =  speed;
+
+        // Jump if pressed and on the ground
+        if (jumpPressed && onGround) {
+            yVelo    = jumpMechanic;
+            onGround = false;
+            jumping  = true;
         }
 
         // Moves horizontally
         x += xVelo;
-
-        // Jump if pressed and on the ground
-        if (jumpPressed && onGround) {
-            yVelo = jumpMechanic;
-            onGround = false;
-            jumping = true;
-        }
-
-        // Apply vertical movement
-        y = y + yVelo;
-
-        // Collision detection with platforms
-        onGround = false;
+        Rectangle playerBounds = new Rectangle(x, y, width, height);
         for (Platform p : platforms) {
-            if (collidesWith(p)) {
-                //player must be coming from above
-                if (y + height - yVelo <= p.getY()) {
-                    y = p.getY() - height; // Snap on top
-                    yVelo = 0;
-                    onGround = true;
-                    jumping = false;
-                } else {
-                    // Side or bottom collisions
-                    if (x + width - xVelo <= p.getX()) {
-                        x = p.getX() - width;
-                        xVelo = (int)(-xVelo * 0.5);
-                    } else if (x - xVelo >= p.getX() + p.getWidth()) {
-                        x = p.getX() + p.getWidth();
-                        xVelo = (int)(-xVelo * 0.5);
-                    } else if (y - yVelo >= p.getY() + p.getHeight()) {
-                        y = p.getY() + p.getHeight();
-                        yVelo = (int)(-yVelo * 0.5);
-                    }
+            Rectangle plat = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+            if (playerBounds.intersects(plat)) {
+                if (xVelo > 0) {
+                    // Ran into a wall on the right
+                    x = p.getX() - width;
+                } else if (xVelo < 0) {
+                    // Ran into a wall on the left
+                    x = p.getX() + p.getWidth();
                 }
-                break;
+                xVelo = 0;
+                playerBounds.setLocation(x, y);
             }
         }
 
-        // Prevent moving off-screen
+        // Vertical pass
+        y += yVelo;
+        onGround = false;
+        playerBounds.setLocation(x, y);
+        for (Platform p : platforms) {
+            Rectangle plat = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+            if (playerBounds.intersects(plat)) {
+                if (yVelo > 0) {
+                    // Landing on top
+                    y  = p.getY() - height;
+                    onGround = true;
+                    jumping  = false;
+                } else if (yVelo < 0) {
+                    // Hitting head
+                    y = p.getY() + p.getHeight();
+                }
+                yVelo = 0;
+                playerBounds.setLocation(x, y);
+            }
+        }
+
+        // Clamp to screen and reset if fallen
         if (x < 0) x = 0;
         if (x > 970) x = 970;
         if (y > 1200) {
             x = 100;
             y = 500;
         }
-    }
+}
 
-    // Checks if a player bounding box intersects the given platform
+        // Checks if a player bounding box intersects the given platform
     private boolean collidesWith(Platform p) {
         return (x + width > p.getX() && x < p.getX() + p.getWidth() &&
                 y + height > p.getY() && y < p.getY() + p.getHeight());

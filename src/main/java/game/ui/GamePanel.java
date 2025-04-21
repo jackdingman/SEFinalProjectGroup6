@@ -202,20 +202,23 @@ public class GamePanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (!paused) {
             // Update local player movement and death handling
-            player.positionChange(platforms, coins);
             if (player.getY() > 1200) {
                 stats.recordDeath(username);
                 player.setPosition(100, 500);
             }
 
             // Build combined platform list including visible toggle walls
-            ArrayList<Platform> allPlatforms = new ArrayList<>(platforms);
+            ArrayList<Platform> collidables = new ArrayList<>(platforms);
             for (ToggleWall wall : toggleWalls) {
                 if (wall.isVisible()) {
-                    allPlatforms.add(new Platform(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight()));
+                    collidables.add(
+                            new Platform(wall.getX(), wall.getY(), wall.getWidth(), wall.getHeight())
+                    );
                 }
             }
-            player.positionChange(allPlatforms, coins); // second collision pass
+
+            // One unified collision pass
+            player.positionChange(collidables, coins); // second collision pass
 
             // Handle coin collection and notify server
             for (Coin c : coins) {
@@ -246,10 +249,11 @@ public class GamePanel extends JPanel implements ActionListener {
 
             // Update and sync pushable blocks
             for (PushableBlock block : pushableBlocks) {
-
                 int prevX = block.getBounds().x;
                 int prevY = block.getBounds().y;
-                block.update(allPlatforms, player);
+
+                // use the same collidables list built above:
+                block.update(collidables, player);
                 if (client != null
                         && (block.getBounds().x != prevX || block.getBounds().y != prevY)) {
                     client.sendBlockPosition(

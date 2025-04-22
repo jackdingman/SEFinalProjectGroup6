@@ -48,7 +48,7 @@ public class Levels {
 
             platforms.add(new Platform(700, 350, 100, 20));
 
-            coins.add(new Coin(100, 520, "lvl2_coin0"));
+            coins.add(new Coin(50, 440, "lvl2_coin0"));
             coins.add(new Coin(450, 420, "lvl2_coin1"));
             coins.add(new Coin(720, 320, "lvl2_coin2"));
 

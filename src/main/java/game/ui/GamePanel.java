@@ -92,7 +92,7 @@ public class GamePanel extends JPanel implements ActionListener {
         // Initialize network client for multiplayer
         ChatClient tmp = null;
         try {
-            tmp = new ChatClient("192.168.0.223", 8300, this);
+            tmp = new ChatClient("10.252.68.174", 8300, this);
         } catch (Exception e) {
             e.printStackTrace();
         }

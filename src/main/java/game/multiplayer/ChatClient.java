@@ -1,5 +1,6 @@
 package game.multiplayer;
 
+import java.util.Map;
 import java.util.Set;
 import java.io.IOException;
 
@@ -50,6 +51,18 @@ public class ChatClient extends AbstractClient {
                 return;
             }
         }
+
+        if (msg instanceof Map<?,?> statsData) {
+            var coins  = (Map<String,Integer>) statsData.get("coins");
+            var deaths = (Map<String,Integer>) statsData.get("deaths");
+            var medals = (Map<String,Integer>) statsData.get("medals");
+
+            if (gamePanel != null) {
+                gamePanel.updateStatsFromServer(coins, deaths, medals);
+            }
+            return;
+        }
+
 
         // Update waiting room players
         if (msg instanceof java.util.Set<?> set && waitingPanel != null) {
@@ -141,6 +154,22 @@ public class ChatClient extends AbstractClient {
     public void sendButtonActivated(String buttonId) {
         try {
             sendToServer("BUTTON:" + buttonId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendDeath(String username) {
+        try {
+            sendToServer("DEATH:" + username);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendFirstFlag(String username) {
+        try {
+            sendToServer("FLAG_FIRST:" + username);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,9 +11,11 @@ import game.entity.Button;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 
 public class GamePanel extends JPanel implements ActionListener {
@@ -151,14 +153,12 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     // Called by ChatClient to synchronize remote players and world state
-    // Called by ChatClient to synchronize remote players and world state
     public void updateOtherPlayers(HashMap<String, PlayerUpdate> players, GameWorldState state) {
         this.otherPlayers = players;
 
         // Advance level if remote state differs
         if (this.worldState.currentLevel != state.currentLevel) {
             this.currentLevel = state.currentLevel;
-            stats.awardMedals(); // award medals for completed level
             // If final level passed, show Game Over screen
             if (currentLevel > 3) {
                 if (timer != null) timer.stop();
@@ -202,8 +202,10 @@ public class GamePanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (!paused) {
             // Update local player movement and death handling
-            if (player.getY() > 1200) {
-                stats.recordDeath(username);
+            // System.out.println(">>> DEBUG Client about to send DEATH:" + username);
+            if (player.getY() > getHeight()) {
+                System.out.println(">>> Client sending DEATH:" + username);
+                client.sendDeath(username);
                 player.setPosition(100, 500);
             }
 
@@ -267,8 +269,17 @@ public class GamePanel extends JPanel implements ActionListener {
             // Check flag reaching and notify server
             flag.update();
             if (flag.isFlagReached(player.getX(), player.getY(), 30, 30) && client != null) {
-                client.sendFlagReached();
-                stats.flagReached(username);
+                if (client != null) {
+                    client.sendFlagReached();
+                    // Check if first to reach in this level
+                    if (stats.getFirstToFlag() == null) {
+                        try {
+                            client.sendToServer("FLAG_FIRST:" + username);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
             }
 
             // Send local player update to server
@@ -376,4 +387,12 @@ public class GamePanel extends JPanel implements ActionListener {
     public ChatClient getClient() {
         return client;
     }
+
+    public void updateStatsFromServer(Map<String,Integer> serverCoins,
+                                      Map<String,Integer> serverDeaths,
+                                      Map<String,Integer> serverMedals) {
+        // This will clear out whatever the client had and load in the server’s authoritative numbers
+        stats.updateFromServer(serverCoins, serverDeaths, serverMedals);
+    }
+
 }

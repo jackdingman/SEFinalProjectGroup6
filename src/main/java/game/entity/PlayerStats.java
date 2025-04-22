@@ -50,8 +50,18 @@ public class PlayerStats {
     // Checks who have the most medals
     public String getMVP() {
         return medals.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey).orElse("N/A");
+                .max((entry1, entry2) -> {
+                    int medalCompare = entry1.getValue().compareTo(entry2.getValue());
+                    if (medalCompare != 0) return medalCompare;
+
+                    int coinCompare = coinsCollected.get(entry1.getKey())
+                            .compareTo(coinsCollected.get(entry2.getKey()));
+                    if (coinCompare != 0) return coinCompare;
+
+                    return deaths.get(entry2.getKey()).compareTo(deaths.get(entry1.getKey()));
+                })
+                .map(Map.Entry::getKey)
+                .orElse("N/A");
     }
 
     // Return immutable view of coins collected
@@ -72,5 +82,19 @@ public class PlayerStats {
     // Return the username of the first player who reached the flag
     public String getFirstToFlag() {
         return firstToFlag;
+    }
+
+    public void updateFromServer(Map<String, Integer> serverCoins,
+                                 Map<String, Integer> serverDeaths,
+                                 Map<String, Integer> serverMedals) {
+        // Clear existing data
+        coinsCollected.clear();
+        deaths.clear();
+        medals.clear();
+
+        // Update from server data
+        coinsCollected.putAll(serverCoins);
+        deaths.putAll(serverDeaths);
+        medals.putAll(serverMedals);
     }
 }

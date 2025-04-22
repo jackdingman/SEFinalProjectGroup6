@@ -15,6 +15,19 @@ import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
 
 public class ChatServer extends AbstractServer {
+
+    // Tracks the total coins collected by each player
+    private final HashMap<String, Integer> serverCoins = new HashMap<>();
+
+    // Tracks the total deaths recorded for each player
+    private final HashMap<String, Integer> serverDeaths = new HashMap<>();
+
+    // Tracks the total medals awarded to each player
+    private final HashMap<String, Integer> serverMedals = new HashMap<>();
+
+    // Maps each level number to the first player who reached the flag on that level
+    private final HashMap<Integer, String> levelFirstFlags = new HashMap<>();
+
     // Reference to GUI log area for server messages
     private JTextArea log;
 
@@ -104,14 +117,16 @@ public class ChatServer extends AbstractServer {
             else if (msg instanceof PlayerUpdate) {
                 PlayerUpdate update = (PlayerUpdate) msg;
                 playerStates.put(update.username, update);
+                // Update coin count from player updates
+                serverCoins.put(update.username, update.coinCount);
                 sendWorldUpdate();
                 return;
             }
 
-
             // Handles string-based commands
             else if (msg instanceof String) {
                 String command = (String) msg;
+                // log.append("<<< Server got raw command: '" + command + "'\n");
 
                 // Player joins waiting room
                 if (command.startsWith("JOIN:")) {
@@ -126,28 +141,24 @@ public class ChatServer extends AbstractServer {
                     readyPlayers.add(user);
                     log.append(user + " is ready\n");
 
-                    log.append("Connected players: " + connectedPlayers + "\n");
-                    log.append("Ready players: " + readyPlayers + "\n");
-
-                    // If there's only one player, start the game when they're ready
+                    // If there's only one player, start immediately when ready
                     if (connectedPlayers.size() == 1 && readyPlayers.containsAll(connectedPlayers)) {
-                        log.append("Only one player - starting game immediately\n");
+                        log.append("Starting single-player game\n");
                         sendToAllClients("START_GAME");
                     }
-                    // Otherwise, wait for everyone to be ready
+                    // Wait for everyone to be ready in multiplayer
                     else if (readyPlayers.containsAll(connectedPlayers)) {
                         log.append("All players ready - starting game\n");
                         sendToAllClients("START_GAME");
                     }
                 }
                 // Pause/resume broadcast
-                if (command.equals("PAUSE") || command.equals("RESUME")) {
+                else if (command.equals("PAUSE") || command.equals("RESUME")) {
                     sendToAllClients(command);
                     log.append("Broadcasted " + command + "\n");
-                    return;
                 }
                 // Coin collection event
-                if (command.startsWith("COLLECT:")) {
+                else if (command.startsWith("COLLECT:")) {
                     String coinId = command.substring(8);
                     world.collectCoin(coinId);
                     log.append("Coin collected: " + coinId + "\n");
@@ -155,15 +166,38 @@ public class ChatServer extends AbstractServer {
                 }
                 // Flag reached event: advance level
                 else if (command.equals("FLAG_REACHED")) {
+                    int completedLevel = world.currentLevel;
                     world.advanceLevel();
                     log.append("Flag reached. Advancing to level " + world.currentLevel + "\n");
+
+                    // Award medal to first player who reached this level's flag
+                    String firstPlayer = levelFirstFlags.get(completedLevel);
+                    if (firstPlayer != null) {
+                        serverMedals.merge(firstPlayer, 1, Integer::sum);
+                        log.append("Awarded level completion medal to " + firstPlayer + "\n");
+                    }
+
+                    // Send final stats if game completed
+                    if (world.currentLevel > 3) {
+                        HashMap<String, Object> statsData = new HashMap<>();
+                        statsData.put("coins", new HashMap<>(serverCoins));
+                        statsData.put("deaths", new HashMap<>(serverDeaths));
+                        statsData.put("medals", new HashMap<>(serverMedals));
+                        sendToAllClients(statsData);
+                        log.append("Sent final stats to all clients\n");
+                    }
+
                     sendWorldUpdate();
                 }
                 // Reset game to level 1
                 else if (command.equals("RESET_GAME")) {
-                    world = new GameWorldState(1); // reset level
-                    playerStates.clear(); // optional: reset all players
-                    log.append("Game state reset by client.\n");
+                    world = new GameWorldState(1);
+                    playerStates.clear();
+                    serverCoins.clear();
+                    serverDeaths.clear();
+                    serverMedals.clear();
+                    levelFirstFlags.clear();
+                    log.append("Game state fully reset\n");
                     sendWorldUpdate();
                 }
                 // Block position update
@@ -174,21 +208,48 @@ public class ChatServer extends AbstractServer {
                         int x = Integer.parseInt(parts[2]);
                         int y = Integer.parseInt(parts[3]);
                         world.updateBlockPosition(blockId, x, y);
-                        sendWorldUpdate();  // No log entry
+                        sendWorldUpdate();
                     }
-                    return;
                 }
                 // Button activation event
                 else if (command.startsWith("BUTTON:")) {
                     String buttonId = command.substring(7);
                     world.activateButton(buttonId);
-                    sendWorldUpdate();  // No log entry
-                    return;
+                    sendWorldUpdate();
                 }
-                return;
+                // Player death notification
+                else if (command.startsWith("DEATH:")) {
+                    String user = command.substring("DEATH:".length());
+                    serverDeaths.merge(user, 1, Integer::sum);
+                    log.append("Recorded death for " + user + "\n");
+                }
+                // Medal award notification
+                else if (command.startsWith("MEDAL:")) {
+                    String username = command.substring(6);
+
+                    serverMedals.merge(username, 1, Integer::sum);
+                    log.append("Awarded medal to " + username + "\n");
+                }
+                // First player to reach flag in a level
+                else if (command.startsWith("FLAG_FIRST:")) {
+                    String[] parts = command.split(":");
+                    if (parts.length == 2) {
+                        String username = parts[1];
+                        // Only record first player per level
+                        if (!levelFirstFlags.containsKey(world.currentLevel)) {
+                            levelFirstFlags.put(world.currentLevel, username);
+                            log.append(username + " first to reach flag in level "
+                                    + world.currentLevel + "\n");
+                        }
+                    }
+                }
             }
         } catch (IOException e) {
             log.append("Error: " + e.getMessage() + "\n");
+        } catch (NumberFormatException e) {
+            log.append("Invalid number format in command\n");
+        } catch (Exception e) {
+            log.append("Unexpected error: " + e.getMessage() + "\n");
         }
     }
 

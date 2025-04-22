@@ -65,7 +65,7 @@ public class WaitingRoomPanel extends JPanel {
         // Connect the chat client
         ChatClient temp = null;
         try {
-            temp = new ChatClient("192.168.0.223", 8300, parent, this);
+            temp = new ChatClient("192.168.1.251", 8300, parent, this);
             temp.sendJoin(username);
         } catch (Exception ex) {
             ex.printStackTrace();

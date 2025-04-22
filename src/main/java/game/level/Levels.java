@@ -59,7 +59,7 @@ public class Levels {
                     () -> wall.setVisible(false)
             ));
 
-            blocks.add(new PushableBlock("block2", 75, 510));
+
 
             flag = new Flag(750, 290);
 
@@ -75,23 +75,27 @@ public class Levels {
             platforms.add(new Platform(400, 450, 200, 20));
             platforms.add(new Platform(700, 350, 300, 20));
 
-            coins.add(new Coin(100, 520, "lvl3_coin0"));
+            coins.add(new Coin(430, 520, "lvl3_coin0"));
             coins.add(new Coin(450, 420, "lvl3_coin1"));
             coins.add(new Coin(720, 320, "lvl3_coin2"));
 
             ToggleWall wall1 = new ToggleWall(200, 250, 100, 20);
-            ToggleWall wall2 = new ToggleWall(500, 300, 100, 20);
+            ToggleWall wall2 = new ToggleWall(500, 210, 100, 20);
+            ToggleWall wall3 = new ToggleWall(330, 210, 10, 200);
             toggleWalls.add(wall1);
             toggleWalls.add(wall2);
+            toggleWalls.add(wall3);
 
-            buttons.add(new Button("btn3", 125, 530,
+            buttons.add(new Button("btn3", 430, 530,
                     () -> {
                         wall1.setVisible(true);
                         wall2.setVisible(true);
+                        wall3.setVisible(true);
                     },
                     () -> {
                         wall1.setVisible(false);
                         wall2.setVisible(false);
+                        wall3.setVisible(false);
                     }
             ));
 
@@ -105,40 +109,60 @@ public class Levels {
                 e.printStackTrace();
             }
         } else if (levelNum == 4) {
-            platforms.add(new Platform(50, 550, 200, 20)); // Starting platform
-            platforms.add(new Platform(300, 550, 200, 20)); // Left button platform
-            platforms.add(new Platform(850, 550, 200, 20)); // Right button platform
-            platforms.add(new Platform(550, 450, 100, 20)); // Final flag platform
+            platforms.add(new Platform(0, 550, 325, 20)); 
+            platforms.add(new Platform(150, 350, 200, 20));
+            platforms.add(new Platform(0, 100, 250, 20));
+
+            platforms.add(new Platform(850, 550, 100, 20));
+            platforms.add(new Platform(500, 350, 200, 20));
+            platforms.add(new Platform(500, 350, 10, 100));
+            platforms.add(new Platform(700, 350, 10, 100));
 
             coins.add(new Coin(320, 520, "lvl4_coin0"));
             coins.add(new Coin(870, 520, "lvl4_coin1"));
+            coins.add(new Coin(300, 80, "lvl4_coin3"));
+            coins.add(new Coin(600, 530, "lvl4_coin4"));
 
-            ToggleWall bridge1 = new ToggleWall(500, 530, 80, 20);
-            ToggleWall bridge2 = new ToggleWall(700, 530, 80, 20);
+            ToggleWall bridge1 = new ToggleWall(250, 100, 640, 20);
+            ToggleWall bridge2 = new ToggleWall(250, 550, 550, 20);
+            ToggleWall bridge3 = new ToggleWall(275, 200, 80, 20);
             toggleWalls.add(bridge1);
+            toggleWalls.add(bridge3);
             toggleWalls.add(bridge2);
-
+            blocks.add(new PushableBlock("block3", 60, 50));
             // Buttons on both ends
-            buttons.add(new Button("btn4a", 310, 540,
+            buttons.add(new Button("btn4a", 300, 540,
                     () -> {
                         bridge1.setVisible(true);
-                        bridge2.setVisible(true);
+
                     },
                     () -> {
                         bridge1.setVisible(false);
-                        bridge2.setVisible(false);
+
                     }
             ));
             buttons.add(new Button("btn4b", 880, 540,
                     () -> {
-                        bridge1.setVisible(true);
+
                         bridge2.setVisible(true);
                     },
                     () -> {
-                        bridge1.setVisible(false);
+
                         bridge2.setVisible(false);
                     }
             ));
+            // Buttons on both ends
+            buttons.add(new Button("btn4c", 10, 540,
+                    () -> {
+                        bridge3.setVisible(true);
+
+                    },
+                    () -> {
+                        bridge3.setVisible(false);
+
+                    }
+            ));
+
 
             flag = new Flag(570, 420);
 

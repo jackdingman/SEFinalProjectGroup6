@@ -160,7 +160,7 @@ public class GamePanel extends JPanel implements ActionListener {
         if (this.worldState.currentLevel != state.currentLevel) {
             this.currentLevel = state.currentLevel;
             // If final level passed, show Game Over screen
-            if (currentLevel > 3) {
+            if (currentLevel > 4) {
                 if (timer != null) timer.stop();
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
                 frame.setContentPane(new GameOverScreen(stats, username));

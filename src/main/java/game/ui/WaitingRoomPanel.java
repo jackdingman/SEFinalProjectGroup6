@@ -94,4 +94,24 @@ public class WaitingRoomPanel extends JPanel {
             gamePanel.requestFocusInWindow();
         });
     }
+
+    public ChatClient getClient() {
+        return client;
+    }
+
+    public void setClient(ChatClient client) {
+        this.client = client;
+    }
+
+    public JTextArea getPlayerListArea() {
+        return playerListArea;
+    }
+
+    public JButton getReadyButton() {
+        return readyButton;
+    }
+
+    public boolean getReady() {
+        return ready;
+    }
 }
